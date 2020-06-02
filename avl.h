@@ -2,18 +2,7 @@
 #define AVLTREE_H
  
 #include <stdlib.h>
-
-
-typedef struct
-{
-	char recordID[100];
-	char status[100];
-	char patientFirstName[100];
-    char patientLastName[100];
-    char diseaseID[100];
-    char age[100];
-}entry;
-
+#include "namedpipes.h"
 
 typedef struct avltreenode
 {
@@ -43,5 +32,6 @@ int get_tree_height(avltreenode* node);
 int get_tree_nodes_count(avltreenode *root);
 void avl_tree_free(avltreenode *root);
 
+void Inorder(avltreenode* root);
 
 #endif 

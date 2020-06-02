@@ -1,4 +1,5 @@
 #include "avl.h"
+#include "date.h"
 
 // ----------------------------------functions to create a tree and nodes-----------------------------------------
 //creates a tree
@@ -40,7 +41,7 @@ avltreenode* insert_to_tree(avltreenode* node, entry* item)
         return(create_avl_node(item)); 
     }
   
-    if (to_seconds(item->entryDate) < to_seconds(node->data->entryDate)) {
+    if (to_seconds(item->recordID) < to_seconds(node->data->recordID)) {
         node->left = insert_to_tree(node->left, item); 
     }
     else {
@@ -66,7 +67,7 @@ avltreenode* insert_to_tree(avltreenode* node, entry* item)
   //   / \
   // T1   T2
 
-    if (balance > 1 && to_seconds(item->entryDate) < to_seconds(node->left->data->entryDate)) 
+    if (balance > 1 && to_seconds(item->recordID) < to_seconds(node->left->data->recordID)) 
         return right_tree_rotate(node); 
   
 
@@ -82,7 +83,7 @@ avltreenode* insert_to_tree(avltreenode* node, entry* item)
     //      T3  T4
 
 
-    if (balance < -1 && to_seconds(item->entryDate) > to_seconds(node->right->data->entryDate)) 
+    if (balance < -1 && to_seconds(item->recordID) > to_seconds(node->right->data->recordID)) 
         return left_tree_rotate(node); 
   
     // Left Right rotate 
@@ -95,7 +96,7 @@ avltreenode* insert_to_tree(avltreenode* node, entry* item)
     //     / \                        / \
     //   T2   T3                    T1   T2
 
-    if (balance > 1 && to_seconds(item->entryDate) > to_seconds(node->left->data->entryDate)) 
+    if (balance > 1 && to_seconds(item->recordID) > to_seconds(node->left->data->recordID)) 
     { 
         node->left =  left_tree_rotate(node->left); 
         return right_tree_rotate(node); 
@@ -110,7 +111,7 @@ avltreenode* insert_to_tree(avltreenode* node, entry* item)
     //   / \                              /  \
     // T2   T3                           T3   T4
 
-    if (balance < -1 && to_seconds(item->entryDate) < to_seconds(node->right->data->entryDate)) 
+    if (balance < -1 && to_seconds(item->recordID) < to_seconds(node->right->data->recordID)) 
     { 
         node->right = right_tree_rotate(node->right); 
         return left_tree_rotate(node); 
@@ -190,3 +191,19 @@ int get_tree_balance(avltreenode* node)
         return 0; 
     return get_tree_height(node->left) - get_tree_height(node->right); 
 }  
+
+void Inorder(avltreenode* root) 
+{ 
+     if (root == NULL) 
+          return; 
+  
+     /* first recur on left child */
+    Inorder(root->left); 
+   /* now recur on right child */
+     printf("%s --", root->data->recordID);
+     Inorder(root->right);
+     /* then print the data of node */
+       
+  
+     
+} 

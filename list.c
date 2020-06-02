@@ -1,5 +1,5 @@
 #include "list.h"
-
+#include "commandsfunctions.h"
 
 //------------------------funvtions to init and insert to the list ---------------------------------------------------
  LinkedList* allocate_list() {
@@ -10,7 +10,7 @@
     return list;
 }
 
-void linkedlist_insert(LinkedList* list, entry* item , int isCountry) {
+void linkedlist_insert(LinkedList* list, entry* item, int isCountry) {
 
     //if list is null
     if (list->next == NULL) {
@@ -21,8 +21,10 @@ void linkedlist_insert(LinkedList* list, entry* item , int isCountry) {
         node->next = NULL;
         list->next = node;
         if(isCountry){
-        strcpy(node->entryName, item->country);
+        strcpy(node->entryName, item->countryname);
         }else strcpy(node->entryName, item->diseaseID);
+   		node->pid = item->workerpid;
+        node->data = item;
 
         return;
     }
@@ -32,11 +34,12 @@ void linkedlist_insert(LinkedList* list, entry* item , int isCountry) {
     while (temp->next!=NULL) {
 
         temp = temp->next;
-
+        
         if(isCountry){
 
-            if(strcmp(temp->entryName,item->country) == 0){
+            if(strcmp(temp->entryName,item->countryname) == 0){
 
+             temp->data = item;   
              temp->root->root = insert_to_tree(temp->root->root,item);
              return;
 
@@ -46,12 +49,12 @@ void linkedlist_insert(LinkedList* list, entry* item , int isCountry) {
 
             if(strcmp(temp->entryName,item->diseaseID) == 0){
 
+            temp->data = item;
              temp->root->root = insert_to_tree(temp->root->root,item);
              return;
 
             }      
         }
-
 
     }
     
@@ -62,8 +65,12 @@ void linkedlist_insert(LinkedList* list, entry* item , int isCountry) {
     node->next = NULL;
     temp->next = node;
     if(isCountry){
-        strcpy(node->entryName, item->country);
+        strcpy(node->entryName, item->countryname);
         }else strcpy(node->entryName, item->diseaseID);
+    node->pid = item->workerpid;
+    node->data = item;
+
+        
 
     return ;
 }
@@ -84,3 +91,26 @@ void free_linkedlist(LinkedList* list) {
     }
     free(temp1);
 }
+
+
+void print(LinkedList* list) {
+
+	int count = 0;
+	int num_of_nodes = 0;
+
+	//arxizw apo to head tis listas	
+	LinkedList * temp = list;
+	count = get_node_count(list);
+
+	while(temp->next!=NULL){
+		
+		//gia kathe komvo sti lista pou einai enas ios metraw posa nodes exei to dentro
+		temp= temp->next;
+		
+		printf("%s %s %ld\n",temp->entryName,temp->data->countryname ,(long)temp->pid);
+		
+	}
+   	
+}
+
+

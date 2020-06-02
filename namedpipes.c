@@ -11,24 +11,21 @@
 #include <sys/errno.h>
 
 #include "namedpipes.h"
-#define PERMS S_IRUSR | S_IWUSR
-
+#define PERMS 0777
 
 //create FIFOS for all workers
 void createFIFOS(int w){
+
+	char FIFO1[100]; // to read
+  	char FIFO2[100]; // to write
+
 	for(int i = 0; i < w; i++){
-
-		char FIFO1[24]; // to read
-  		char FIFO2[24]; // to write
-
-
 
 	    sprintf(FIFO1,"Input%d", i);
 	    sprintf(FIFO2,"Output%d",i);
 
-
 	    //create fifos for read and writing
-		if((mkfifo(FIFO1, PERMS) < 0) && (errno != EEXIST) ) {
+		if((mkfifo(FIFO1, PERMS) < 0) && (errno != EEXIST)) {
 			perror("can't create fifo");
 		}
 		if((mkfifo(FIFO2, PERMS) < 0) && (errno != EEXIST)) {
@@ -42,103 +39,43 @@ void createFIFOS(int w){
 //delete FIFOS
 void deleteFIFOS(int w){
 
+	char FIFO1[100]; // to read
+  	char FIFO2[100]; // to write
+
 	for(int i=0; i< w; i++){
-
-		char FIFO1[24]; // to read
-  		char FIFO2[24]; // to write
-
-
-
+		
 	    sprintf(FIFO1,"Input%d", i);
 	    sprintf(FIFO2,"Output%d",i);
 
 		//delete FIFOS
-		if(unlink(FIFO1) < 0) {
+		if(remove(FIFO1) != 0 && FIFO1 != NULL) {
 			perror("client: can't unlink \n");
 		}
-		if(unlink(FIFO2) < 0) {
+		if(remove(FIFO2) != 0 && FIFO2 != NULL ) {
 			perror("client: can't unlink \n");
 		}
 		
 	}
 }
 
-//open FIFOS of parent
-void parentFIFOS(int w,char* line){
-	int* readfds = malloc(w*sizeof(int));
-	int* writefds = malloc(w*sizeof(int));
-
-	for(int i=0;i<w;i++){
-		
-		char FIFO1[24]; // to read
-  		char FIFO2[24]; // to write
-
-
-
-	    sprintf(FIFO1,"Input%d", i);
-	    sprintf(FIFO2,"Output%d",i);
-		
-		int readfd, writefd;
-		
-		if((readfd = open(FIFO1, O_RDONLY)) < 0) {
-			perror("server: can't open read fifo");
-		}
-		if((writefd = open(FIFO2, O_WRONLY)) < 0) {
-			perror("server: can't open write fifo");
-		}
-		
-		readfds[i] = readfd;
-		writefds[i] = writefd;
-		
-		free(FIFO1);
-		FIFO1 = NULL;
-		free(FIFO2);
-		FIFO2 = NULL;
-	}
-	
-	//serverSide(readfds, writefds,line,w);
+int returnPosWorker(int w,pid_t worker,pid_t* workers){
 	
 	for(int i=0;i<w;i++){
-		close(readfds[i]);
-		close(writefds[i]);
+		if(workers[i]==worker){
+			return i;
+		}
 	}
-	
-	free(readfds);
-	readfds = NULL;
-	free(writefds);
-	writefds = NULL;
+	return -1;
 }
 
+void destroyPathsStruct(pathsStruct** p){
 
-//open FIFOS of child
-int childFIFOS(int worker,indexesArray* indexesArr,rootNode* root,int logfd){	
-
-	
-	
-	char FIFO1[24]; // to read
-  	char FIFO2[24]; // to write
-
-
-
-	sprintf(FIFO1,"Input%d", i);
-	sprintf(FIFO2,"Output%d",i);
-	
-	int readfd, writefd;
-	/* Open the FIFOs. We assume server has
-	already created them. */
-	if((writefd = open(FIFO1, O_WRONLY)) < 0)
-	{
-		perror("client: can't open write fifo \n");
+	for(int i=0;i<(*p)->noOfPaths;i++){
+		free((*p)->paths[i]);
+		(*p)->paths[i] = NULL;
 	}
-	if((readfd = open(FIFO2, O_RDONLY)) < 0)
-	{
-		perror("client: can't open read fifo \n");
-	}
-	
-	//int ret = clientSide(readfd,writefd,indexesArr,root,logfd);
-	close(readfd);
-	close(writefd);
-	
-	
-	return ret;
+	free((*p)->paths);
+	(*p)->paths = NULL;
+	free((*p));
+	*p = NULL;
 }
